@@ -1,10 +1,16 @@
 ## Author: Ethan Sterbis | [LinkedIn](https://www.linkedin.com/in/ethansterbis/) | [Twitter](https://x.com/EthanSterbis)
 
-## Summary
+## Introduction
 The aim of this model is to predict whether a defense will be in man or zone coverage on passing plays.
 The factors of the model are able to be calculated up until the quarterback snaps the ball, as the model is intended to predict pre-snap coverage probability.
 
 This script uses play-by-play data for the 2022 and 2023 NFL seasons, along with participation data as well as data from [FTN](https://www.ftndata.com/).
+
+## Factor Analysis
+
+### Most Important Factors by Gain
+<img src="https://github.com/user-attachments/assets/51bb0cdf-1ad3-4ace-b9b3-18a80406a253" width="100%" alt="Defenses Playing Man Coverage" />
+The table shown above includes the 10 highest features by gain according to the XGBoost model. Gain represents the average contribution of a feature to reduce the model's error. Also shown are cover, which depicts the number of observations related to a feature, and frequency, which quanitifies the number of times a feature appears in all trees in the model.
 
 ## Data Visualization
 
