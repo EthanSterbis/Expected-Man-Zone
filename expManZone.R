@@ -1,7 +1,9 @@
-#install.packages("nflreadr")
-library(nflreadr)
+#install.packages("tidyverse")
+library(tidyverse)
 #install.packages("dplyr")
 library(dplyr)
+#install.packages("nflreadr")
+library(nflreadr)
 #install.packages("caret")
 library(caret)
 #install.packages("xgboost")
@@ -24,6 +26,8 @@ library(gt)
 library(gtExtras)
 #install.packages("ggthemes")
 library(ggthemes)
+#install.packages("ggsci")
+library(ggsci)
 
 sterb_analytics_theme <- function(..., base_size = 12) {
   
@@ -172,6 +176,40 @@ pred_labels <- max.col(matrix(pred_probs, ncol = 2)) - 1
 importance_matrix <- xgb.importance(model = xgb_model)
 print(importance_matrix)
 
+importance_matrix_df <- as.data.frame(importance_matrix)
+
+top10feats <- importance_matrix_df %>% 
+  arrange(-Gain) %>% 
+  ungroup() %>% 
+  mutate(rk_gain = rank(-Gain)) %>% 
+  filter(rk_gain <= 10)
+
+importanceMatrTable <- gt(top10feats, rowname_col = "rk_gain") %>% 
+  tab_header(
+    title = "Top 10 Features by Gain",
+    subtitle = "Expected Man/Zone Coverage XGBoost Model"
+  ) %>% 
+  fmt_number(
+    columns = vars(Gain, Cover, Frequency),
+    decimals = 4
+  ) %>% 
+  cols_align(
+    align = 'center',
+    columns = vars(Feature, Gain, Cover, Frequency)
+  ) %>% 
+  data_color(
+    columns = vars(Gain, Cover, Frequency),
+    colors = col_numeric(
+      palette = pal_material("blue")(10),
+      domain = NULL
+    )
+  ) %>%
+  gt_theme_538()
+
+importanceMatrTable
+
+#gtsave(importanceMatrTable, "top-10-feats-gain.png")
+
 # convert numeric predictions back to factor levels (man/zone)
 pred_factor <- factor(pred_labels, levels = c(0, 1), labels = c("MAN_COVERAGE", "ZONE_COVERAGE"))
 
@@ -299,7 +337,7 @@ ggplot(data = posTeamEpaVSoe, aes(x = avg_man_oe,
   geom_image(aes(image = team_logo_wikipedia), asp = 16/9) +
   scale_x_continuous(breaks = pretty_breaks(n = 8),
                      labels = percent_format()) +
-  scale_y_continuous(breaks = pretty_breaks(n = 8)) +
+  scale_y_continuous(breaks = pretty_breaks(n = 12)) +
   sterb_analytics_theme() +
   labs(x = "Average Man Coverage Seen Over Expectation",
        y = "Average EPA Against Man Coverage",
@@ -308,7 +346,7 @@ ggplot(data = posTeamEpaVSoe, aes(x = avg_man_oe,
        caption = "@EthanSterbis on X
        data via nflverse and FTN")
 
-#ggsave('off-mc-vs-oe.jpeg', height = 6, width = 9, dpi = 'retina')
+#ggsave('off-mc-vs-oe.jpeg', height = 8, width = 10, dpi = 'retina')
 
 # defenses playing man coverage
 ggplot(data = defTeamEpaVSoe, aes(x = avg_man_oe,
@@ -318,9 +356,9 @@ ggplot(data = defTeamEpaVSoe, aes(x = avg_man_oe,
   geom_vline(xintercept = mean(defTeamEpaVSoe$avg_man_oe),
              color = "red", lty = 'dashed', size = 0.8) +
   geom_image(aes(image = team_logo_wikipedia), asp = 16/9) +
-  scale_x_continuous(breaks = pretty_breaks(n = 8),
+  scale_x_continuous(breaks = pretty_breaks(n = 12),
                      labels = percent_format()) +
-  scale_y_continuous(breaks = pretty_breaks(n = 8)) +
+  scale_y_continuous(breaks = pretty_breaks(n = 12)) +
   sterb_analytics_theme() +
   labs(x = "Average Man Coverage Over Expectation",
        y = "Average EPA in Man Coverage",
@@ -329,7 +367,7 @@ ggplot(data = defTeamEpaVSoe, aes(x = avg_man_oe,
        caption = "@EthanSterbis on X
        data via nflverse and FTN")
 
-#ggsave('def-mc-vs-oe.jpeg', height = 6, width = 9, dpi = 'retina')
+#ggsave('def-mc-vs-oe.jpeg', height = 8, width = 10, dpi = 'retina')
 
 # offenses facing zone coverage
 ggplot(data = posTeamEpaVSoe, aes(x = avg_zone_oe,
@@ -350,7 +388,7 @@ ggplot(data = posTeamEpaVSoe, aes(x = avg_zone_oe,
        caption = "@EthanSterbis on X
        data via nflverse and FTN")
 
-#ggsave('off-zc-vs-oe.jpeg', height = 6, width = 9, dpi = 'retina')
+#ggsave('off-zc-vs-oe.jpeg', height = 8, width = 10, dpi = 'retina')
 
 # defenses playing zone coverage
 ggplot(data = defTeamEpaVSoe, aes(x = avg_zone_oe,
@@ -360,7 +398,7 @@ ggplot(data = defTeamEpaVSoe, aes(x = avg_zone_oe,
   geom_vline(xintercept = mean(defTeamEpaVSoe$avg_zone_oe),
              color = "red", lty = 'dashed', size = 0.8) +
   geom_image(aes(image = team_logo_wikipedia), asp = 16/9) +
-  scale_x_continuous(breaks = pretty_breaks(n = 8),
+  scale_x_continuous(breaks = pretty_breaks(n = 12),
                      labels = percent_format()) +
   scale_y_continuous(breaks = pretty_breaks(n = 8)) +
   sterb_analytics_theme() +
@@ -371,4 +409,4 @@ ggplot(data = defTeamEpaVSoe, aes(x = avg_zone_oe,
        caption = "@EthanSterbis on X
        data via nflverse and FTN")
 
-#ggsave('def-zc-vs-oe.jpeg', height = 6, width = 9, dpi = 'retina')
+#ggsave('def-zc-vs-oe.jpeg', height = 8, width = 10, dpi = 'retina')
