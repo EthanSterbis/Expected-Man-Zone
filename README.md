@@ -52,7 +52,7 @@ The Buccaneers saw the least amount of man coverage over expectation, and ranked
 
 Baltimore Ravens tight end Mark Andrews battled with injury in 2023. Without Andrews,
 the Ravens lacked a contested catch threat who could consistently win at the catch point,
-resulting in a substantial decrease in efficiency when facing zonman coverage. 
+resulting in a substantial decrease in efficiency when facing man coverage. 
 
 
 
